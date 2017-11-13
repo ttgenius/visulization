@@ -12,7 +12,7 @@ def draw_arc(startlon,startlat,endlon,endlat,n,upper,outname):
     n = float(n)
     u = sqrt((endlon-startlon)**2 + (endlat-startlat)**2)/2    #distance between 2 end points (2a of an ellipse)
     print("uuuuuuuuuuuuuuu",u)
-    v = u/3.  #2b of an ellipse
+    v = u/2.5 #2b of an ellipse
     dt = u/n
     theta = atan((endlat-startlat)/(endlon-startlon))  #angle between x-axis and line u
     center_x = (endlon + startlon)/ 2.
@@ -40,18 +40,20 @@ def draw_arc(startlon,startlat,endlon,endlat,n,upper,outname):
         insert_value(points,vertices,zvalues,new_lon,new_lat,0.11446)
     insert_value(points, vertices, zvalues, endlon, endlat, 0.11446)
     poly_data = set_poly(points, vertices, zvalues)
-    write_poly(poly_data, "{}.vtp".format(outname))
+    write_poly(poly_data, "airlines/{}.vtp".format(outname))
     plot(X, Y)
     scatter(X, Y)
     scatter([center_x], [center_y], color='r', s=100)
     axis('equal')
     show()
 
-draw_arc(172.639847,-43.525650,174.776217, -41.28648,70,False,"air_chch_welly")
-draw_arc(172.639847,-43.525650,173.9528,-41.51603,50,True,"air_chch_blenheim")
-draw_arc(174.776217, -41.28648,173.9528,-41.51603,20,False,"air_welly_blenheim")
-draw_arc(174.776217, -41.28648,173.9581,-41.34472,20,True,"air_welly_picton")
-
+#draw_arc(172.639847,-43.525650,174.776217, -41.28648,70,False,"air_chch_welly2")
+# draw_arc(172.639847,-43.525650,173.9528,-41.51603,50,True,"air_chch_blenheim")
+# draw_arc(174.776217, -41.28648,173.9528,-41.51603,20,False,"air_welly_blenheim")
+draw_arc(174.776217, -41.28648,174.045,-41.28472,20,True,"air_welly_picton")
+# draw_arc(172.639847,-43.525650,173.70222,-42.42500,20,False,"air_chch_kaikoura")
+#draw_arc(174.0528,-41.51603, 173.70222, -42.36500, 20, False, "air_blenheim_kaikoura")
+#draw_arc(174.776217, -41.28648, 173.70222,-42.36500, 20, False,"air_welly_kaikoura")
 #
 # def draw_circular_line(longitude1,latitude1,longitude2,latitude2,num_of_segments):
 #     """takes longitudes and latitudes of two end points and a given number,
