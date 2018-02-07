@@ -114,7 +114,7 @@ def read_z_road_gmt(gmt_file):
 
 
 def dense_road_gmt_v2(gmt_file):
-    """take a normal gmt file, read into different vtp files according to different routes with denser road"""
+    """take an orginal normal road txt gmt file, read into a txt gmt files with denser road"""
 
     input_file = open('road_data_files/{}'.format(gmt_file),'r')
     flag=False
