@@ -2,7 +2,8 @@ from cStringIO import StringIO
 import Image
 import urllib
 
-def download_map(latitude,longitude,outname):
+
+def download_map(latitude, longitude, outname):
     """Download  a staic map from google based on the center coordinates.
        Coords can be obtained from 'http://www.seagull.co.nz/locate.php'
     """
@@ -13,6 +14,7 @@ def download_map(latitude,longitude,outname):
 
 
 download_map(-40.24927085,164.31152344,"westsea")
+
 
 #urlparams = urllib.urlencode({'center': approx_centre,
                                       #'zoom': str(zoom),

@@ -1,10 +1,12 @@
 #!/usr/bin/env python
+"""a script that takes a road-revovery file path and uses GMT to produce an animation with moving vehicles"""
 
 import subprocess
 import os
 import glob
 import shutil
 import gmt
+
 COlOR_DICT = {0.0:'red',0.1:'red',1.0:'green',0.8:'yellow',0.9:'orange',0.95:'limegreen',1.1:"red",0.81:"navy",0.91:"red",1.5:"magenta",0.5:"pink",0.75:"blue"}
 REGION = (170, 177, -45, -40)
 CHCH = (172.639847, -43.525650)
@@ -196,7 +198,6 @@ def read_all(folderpath,p):
                     pts += x + ' ' + y + '\n'   # populate the path to draw 
                     if i == len(splitted_lines):  # end of file
                         p.path(pts, is_file=False, width=check_width(z), colour=COlOR_DICT[z], split=split)
-
 
 
 def main():
