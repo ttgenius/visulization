@@ -16,36 +16,32 @@ import argparse
 import time
 from collections import OrderedDict
 #==========================================disaster begins=============================================================
-GMT_DICT = OrderedDict([('flights', OrderedDict([(0.75, ("blue", 'Charter service')),
-                                                 (0.50, ("pink", 'One way service')),
+GMT_DICT = OrderedDict([('flights', OrderedDict([(0.75, ("orange", 'Temporary service')),
+                                                 (0.50, ("orange", 'Temporary service')),
                                                  (0.95, ('orange', 'Temporary service')),
-                                                 (1.50, ("magenta", 'Increased service')),
+                                                 (1.50, ("green", 'Regular service')),
                                                  (1.00,('green', 'Regular service'))])),
-                        ('rail', OrderedDict([(0.00, ('black', 'Closed')),
-                                              (0.50, ('orange', 'Restricted')),
-                                              (1.00,('white', 'Open'))])),
-                        ('vehicle_passenger_ferries', OrderedDict([('2016_11_14', ('red', 'Closed')),    # ferry doesn't have los value somehow
-                                                                   ('2016_11_15',('rosybrown', 'Reduced service & foot passage')),
-                                                                   ('2016_11_17', ('rosybrown', 'Reduced service & foot passage')),
-                                                                   ('2016_11_18', ('lightyellow', 'Reduced service')),
-                                                                   ('2016_11_29',('green', 'Full service'))])),
+                        ('vehicle_passenger_ferries', OrderedDict([('2016_11_14', ('red', 'No Service')),    # ferry doesn't have los value somehow
+                                                                   ('2016_11_15',('orange', 'Restricted Service')),
+                                                                   ('2016_11_17', ('orange', 'Restricted Service')),
+                                                                   ('2016_11_18', ('orange', 'Restricted Service')),
+                                                                   ('2016_11_29',('green', 'Full service Service'))])),
                         ('road', OrderedDict([(0.00, ('red', 'Closed')),
                                               (0.10,('red', 'Closed')),
-                                              (0.81,("navy", 'Convoy access')),
-                                              (0.90,('darkorange', 'Limited access')),
-                                              (0.91, ("darkorange", 'Limited access')),
-                                              (0.80,('yellow', 'Open daytime (light vehicles)')),
-                                              (0.95, ('limegreen', 'Open daytime')),
+                                              (0.81,('orange', 'Restricted')),
+                                              (0.90,('orange', 'Restricted')),
+                                              (0.91, ('orange', 'Restricted')),
+                                              (0.80,('orange', 'Restricted')),
+                                              (0.95, ('orange', 'Restricted')),
                                               (1.00, ('green', 'Open')),
                                               (1.10, ("green", 'Open'))]))])
 
-
-SYMBOL_DICT = {'road': '', 'rail': '-.', 'flights': '-', 'vehicle_passenger_ferries': ''}
-WIDTH_DICT = {'road': '2p', 'local': '0.7p', 'rail': '1p', 'flights': '2p', 'vehicle_passenger_ferries': '2p'}
+SYMBOL_DICT = {'road': '', 'flights': '-.', 'vehicle_passenger_ferries': ''}
+WIDTH_DICT = {'road': '2p', 'local': '0.7p', 'flights': '2p', 'vehicle_passenger_ferries': '2p'}
 LEGEND_WIDTH = '2p'
-SHAPE_SIZE = {'road': '0.5i', 'rail': '0.7i', 'flights': '0.6i', 'vehicle_passenger_ferries': '0.5i'}
-DX2 = {'road': '0.6i', 'rail': '0.8i', 'flights': '0.7i', 'vehicle_passenger_ferries': '0.6i'}
-DX1 = {'road': '0.25i', 'rail': '0.35i', 'flights': '0.3i', 'vehicle_passenger_ferries': '0.25i'}
+SHAPE_SIZE = {'road': '0.5i', 'flights': '0.7i', 'vehicle_passenger_ferries': '0.5i'}
+DX2 = {'road': '0.6i', 'flights': '0.8i', 'vehicle_passenger_ferries': '0.6i'}
+DX1 = {'road': '0.25i', 'flights': '0.35i', 'vehicle_passenger_ferries': '0.25i'}
 #===========================================ends========================================================================
 TEMPLATE = "ogr2ogr -f 'GMT' {} {} -t_srs EPSG:4326"
 GMT_DIR = "transport_gmts"
@@ -103,26 +99,28 @@ def shp_to_gmt(input_dir,gmt_dir):
     validate_dir(input_dir)
     month_dict = get_month_dict()
     for subdir in os.listdir(input_dir):  # eg. subdir = Road
-        subdir_path = os.path.join(input_dir,subdir)  # get abs path of subdir
-        print("converting {} to raw gmts".format(subdir_path))
-        if os.path.isdir(subdir_path):  # make sure it's a dir not a file
-            #print("Processing {}".format(subdir_path))
-            output_dirname = subdir.split("/")[-1].replace(" ", "_").lower()+'_temp'  # form output gmt folder name
-            output_dir = os.path.join(gmt_dir, output_dirname)  # form sub folder for output gmts
-            make_folder(dir=output_dir)  # make a sub folder for output gmts eg.road, under the biggest gmt folder
-            #print("ouputdrrrrr",output_dir)
-            for filename in glob.glob1(subdir_path,"*.shp"):   # now loop through the shape files in the shape file subdir # only convert file ending with shp, can use shx instead
-                output_file = get_new_name(filename,month_dict)
-                dest = os.path.join(output_dir,output_file)
-                source = os.path.join(subdir_path,filename)
-                cmd = TEMPLATE.format(dest, source)  # cmd to convert files
-                #print(cmd)
-                try:
-                    subprocess.call(cmd,shell=True)  # convert shp to gmt
-                except Exception as (e):
-                    print(e)
-                    sys.exit("Unable to convert from shp to gmt")
-            #print("FINISHING {}".format(output_dir))
+        #print("subdir is,", subdir)
+        if subdir.lower() != 'rail':
+            subdir_path = os.path.join(input_dir,subdir)  # get abs path of subdir
+            #print("converting {} to raw gmts".format(subdir_path))
+            if os.path.isdir(subdir_path):  # make sure it's a dir not a file
+                #print("Processing {}".format(subdir_path))
+                output_dirname = subdir.split("/")[-1].replace(" ", "_").lower()+'_temp'  # form output gmt folder name
+                output_dir = os.path.join(gmt_dir, output_dirname)  # form sub folder for output gmts
+                make_folder(dir=output_dir)  # make a sub folder for output gmts eg.road, under the biggest gmt folder
+                #print("ouputdrrrrr",output_dir)
+                for filename in glob.glob1(subdir_path,"*.shp"):   # now loop through the shape files in the shape file subdir # only convert file ending with shp, can use shx instead
+                    output_file = get_new_name(filename,month_dict)
+                    dest = os.path.join(output_dir,output_file)
+                    source = os.path.join(subdir_path,filename)
+                    cmd = TEMPLATE.format(dest, source)  # cmd to convert files
+                    #print(cmd)
+                    try:
+                        subprocess.call(cmd,shell=True)  # convert shp to gmt
+                    except Exception as (e):
+                        print(e)
+                        sys.exit("Unable to convert from shp to gmt")
+                #print("FINISHING {}".format(output_dir))
 
 
 def get_width(z,name):
@@ -148,7 +146,7 @@ def process_gmt(dir):
     validate_dir(dir)
     # all_info = {}  # collecting all combos for making legends
     for subdir in os.listdir(dir):  # loop through the biggest gmt
-        print("processing {}".format(subdir))
+       # print("processing {}".format(subdir))
         name = subdir[:-5]
         # all_info[name] = set()
         #print(name)
@@ -163,12 +161,12 @@ def process_gmt(dir):
         #print(symbol)
 
         if name == 'vehicle_passenger_ferries':  # ferries don't have los value. status are determined by date. not good
-            print("process ferris")
+            #print("process ferris")
             dates = sorted(trans_dict.keys())
-            print("dates are",dates)
+            #print("dates are",dates)
             for filename in filenames:
                 date = filename[:-4]
-                print("cuurent date is",date)
+                #print("cuurent date is",date)
                 for i in range(len(dates)):
                     day = dates[i]
                     if day <= date:
@@ -178,7 +176,7 @@ def process_gmt(dir):
                         break
                 #print("date is {} day is {} clour is {} satus is {}".format(date, day, colour, status))
                 filepath = os.path.join(subdir_path, filename)
-                print(colour,day)
+                #print(colour,day)
                 with open(filepath, 'r') as in_gmt:
                     buf = in_gmt.readlines()  # first read the file into buffer memory so that we can read and write
                 with open(filepath, 'w') as out_gmt:  # now we overwrite the original raw gmt file
@@ -294,7 +292,7 @@ def get_closet_before(files,timeline):
                     if times[time][dir] < date <= time:
                         times[time][dir] = name
 
-    # print("times",times)
+    #print("times",times)
     return times
 
 
@@ -326,7 +324,7 @@ def group_by_date(times, dir):
             If not, just keep them in a folder;
             else, a dated file instead of folder and return a dict{date: {trans_type: set(gmt_info)}} for greying in legend
     """
-    print("grouping dates")
+    #print("grouping dates")
     sorted_dates = sorted(times.keys())
     #print(sorted_dates)
     #print("afdsafsf",sorted_dates[0].split('.')[0].split('_')[:3])
@@ -354,9 +352,9 @@ def group_by_date(times, dir):
         swap_file(files, 'flights', -1)  # swap flights with the last item of the list as flights need to be plotted on top
 
         # not in the same loop to avoid the case that we just swapped flights with rail
-        swap_file(files, 'rail', -2) # rail width is thinner than rail so needs to be plotted after road
+        # swap_file(files, 'rail', -2) # rail width is thinner than rail so needs to be plotted after road
 
-        print("now files are: ",files)
+       # print("now files are: ",files)
         #print("{}/{}_{}".format(dir,days,date),len(files))
         for f in files:
             #print("appending to big",f)
@@ -378,89 +376,166 @@ def group_by_date(times, dir):
                         line = ','.join(parts[:-1]) + '\n'   # get rid of los or date at the end or gmt line
                     big.write(line)
         big.close()
-    print("date info",date_info)
+    #print("date info",date_info)
     return date_info
 
 
 def clean_up(dir, pattern='_temp'):
     """dir:abs path to the folder containing directries you want to clean up
        pattern: common pattern of directories that you want to delete"""
-    print("cleaning up")
+    #print("cleaning up")
     dirs = glob.glob1(dir,'*'+ pattern + '*')
     for d in dirs:
         #print(d)
         shutil.rmtree(os.path.join(dir,d))
 
-
-def write_legend(gmt_dir, date_info_dict, dx1='0.2i',column=1, shape='-', shape_size='0.5i',shape_colour='-', dx2='0.5i', unused_text_colour='grey', background='darkgrey'):
-    """write a legend sh file for ecah GMT file
-       gmt_dir: abs path to dir containing all unique-day gmt files
-       gmtinfo_dict: a dict of sets {transportation type: set(gmt_info)}
-       date_info_dict: a dict of sets {date:{transportation type: set(gmt_info)}}
-       column: how many columns each row
-       S [dx1 shape shape_size shape_colour, pen [ dx2 text ]]
-       bash: to out put as a bash script or not, default False(not)
-       http://gmt.soest.hawaii.edu/doc/5.3.2/pslegend.html
-    """
-    print("writing legends")
+def fill_time_gaps(gmt_dir):
     validate_dir(gmt_dir)
-    gmt_files = glob.glob1(gmt_dir,'*_*.gmt')
-    #print(gmt_files)
-
-    for gmt_name in gmt_files:
+    gmt_files = sorted(glob.glob1(gmt_dir, '*_*.gmt'),key=lambda x: float(x.split('_')[0]))
+    print(gmt_files)
+    start_day = 1
+    for i, gmt_name in enumerate(gmt_files):
         prefix = gmt_name.split('.')[0]
         parts = prefix.split('_')
-        #print(parts[1:4])
-        year, month, date = parts[1:4]
-        #print("mongth is ",month)
-        month = calendar.month_abbr[int(month)]
-        day = parts[0]
-        time = " "
+        # print(parts[1:4])
+        day, year, month, date = parts[:4]
+        print("day",day)
+        # print("mongth is ",month)
         if len(parts) == 5:  # if name has time
-            time += parts[-1]
-            time = time[0:3] + ':' + time[3:] + " "   # change ' 0300' to ' 03:00 '
+            src = os.path.join(gmt_dir, gmt_name)
+            title_time = int(parts[-1][:2])
+            if title_time == 3:
+                startime = 4
+                endtime = 15
+            elif title_time == 16:
+                startime = 17
+                endtime = 23
 
-        outputpath = os.path.join(gmt_dir,"{}.legend".format(prefix))
-        file = open(outputpath,'w')
+            while startime <= endtime:
+                 # change '3' to '03:00 '
+                title_time = datetime.time(startime).strftime("%H%S")
+                # print("tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttime",time)
+                dest = os.path.join(gmt_dir, "{}_{}.gmt".format('_'.join(parts[:4]), title_time))
+                shutil.copy(src, dest)
+                #print("copied {} to {}".format(src, dest))
+                startime += 1
+        else:
+            while int(day) - start_day > 1:
+                print("start day is:",start_day,"current day is",day,"start date is",start_date)
 
-        # file.write('#!/usr/bin/env bash\n')
-        # file.write("gmt pslegend -R-10/10/-10/10 -JM10i -F+g{} -Dx0i/0i+w10i/10i+jBL+l1.2 -C1i/0.5i -B5f1 << EOF > legend_{}.ps\n".format(background, prefix))
-        # file.write('# G is vertical gap, V is vertical line, N sets # of columns, D draws horizontal line.\n# H is header, L is label, S is symbol, T is paragraph text, M is map scale.\n')
+                current_date = datetime.date(year=int(start_year),month=int(start_month),day=int(start_date)) + datetime.timedelta(days=1)
+                title_date = current_date.strftime("%Y_%m_%d")
+                #print("title_date is:",title_date)
+                start_day += 1
+                src = os.path.join(gmt_dir, gmt_files[i-1])
+                dest = os.path.join(gmt_dir, "{}_{}.gmt".format(str(start_day), title_date))
+                shutil.copy(src, dest)
+                print("copied {} to {}".format(src,dest))
+                start_date = current_date.day
+                start_year = current_date.year
+                start_month = current_date.month
+            start_date = int(date)
+            start_day = int(day)
+            start_year = int(year)
+            start_month = int(month)
 
-        file.write('# w-4i\n')
-        file.write('H 20p Helvetica-Bold{}Day {} ({} {} {})\n'.format(time, day, date, month, year))
-        # file.write('N {}\n'.format(column))
-        # file.write('V 0 1p\n')
-
-        for trans in GMT_DICT.keys():
-            trans_parts = ''.join(trans.split('_')[-1])  # 'vechcle passagne ferries' to 'ferries'
-            s = 's' if trans_parts[-1] != 's' and trans_parts != 'rail' else ''   #if trans type not ending with 's' and it's not a rail
-            trans_txt = trans_parts[0].upper() + trans_parts[1:] + s  #caplitaize first letter
-            file.write('G 1l\n')
-            file.write('L - Helvetica-Bold L {}\n'.format(trans_txt))
-            status = ""
-            for los in GMT_DICT[trans].keys():
-                pen_colour, new_status = GMT_DICT[trans][los]
-                if new_status != status:   #local have same status text as SH, so get rid of local in the legends
-                    status = new_status
-                    set_text_colour = ''
-                    end_text_colour = ''
-                    #print(date_info_dict[prefix][trans])
-                    #print(prefix)
-                    if los not in date_info_dict[prefix][trans]:
-                        set_text_colour = '@;{};'.format(unused_text_colour)
-                        end_text_colour = '@;;'
-                    symbol = SYMBOL_DICT[trans]
-                    if symbol:
-                        symbol = ',{}'.format(symbol)
-                    file.write('S {} {} {} {} {},{}{} {} {}{}{}\n'.format(DX1[trans], shape, SHAPE_SIZE[trans], shape_colour, LEGEND_WIDTH,
-                                                                        pen_colour, symbol, DX2[trans], set_text_colour,
-                                                                        status, end_text_colour))
-        # file.write('EOF\n')
-        # file.write("psconvert -E500 -A -TG legend_{}.ps\n".format(prefix))
-
-        file.close()
-    print("all finished")
+# def write_legend(gmt_dir, date_info_dict, dx1='0.2i',column=1, shape='-', shape_size='0.5i',shape_colour='-', dx2='0.5i', unused_text_colour='grey', background='darkgrey'):
+#     """write a legend sh file for ecah GMT file
+#        gmt_dir: abs path to dir containing all unique-day gmt files
+#        gmtinfo_dict: a dict of sets {transportation type: set(gmt_info)}
+#        date_info_dict: a dict of sets {date:{transportation type: set(gmt_info)}}
+#        column: how many columns each row
+#        S [dx1 shape shape_size shape_colour, pen [ dx2 text ]]
+#        bash: to out put as a bash script or not, default False(not)
+#        http://gmt.soest.hawaii.edu/doc/5.3.2/pslegend.html
+#     """
+#     print("writing legends")
+#     validate_dir(gmt_dir)
+#     gmt_files = glob.glob1(gmt_dir,'*_*.gmt')
+#     #print(gmt_files)
+#
+#
+#     for gmt_name in gmt_files:
+#         prefix = gmt_name.split('.')[0]
+#         parts = prefix.split('_')
+#         #print(parts[1:4])
+#         year, month, date = parts[1:4]
+#         #print("mongth is ",month)
+#         month = calendar.month_abbr[int(month)]
+#         day = parts[0]
+#         startime = 0
+#         endtime = 23
+#         if len(parts) == 5:  # if name has time
+#             title_time  = int(parts[-1][:2])
+#             if title_time == 3:
+#                 endtime = 15
+#             elif title_time == 16:
+#                 startime = 16
+#
+#         while startime <= endtime:
+#             time = datetime.time(startime).strftime("%H:%S") # change '3' to '03:00 '
+#             title_time = datetime.time(startime).strftime("%H%S")
+#             #print("tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttime",time)
+#             outputpath = os.path.join(gmt_dir,"{}_{}.legend".format('_'.join(parts[:4]), title_time))
+#             file = open(outputpath, 'w')
+#
+#             # file.write('#!/usr/bin/env bash\n')
+#             # file.write("gmt pslegend -R-10/10/-10/10 -JM10i -F+g{} -Dx0i/0i+w10i/10i+jBL+l1.2 -C1i/0.5i -B5f1 << EOF > legend_{}.ps\n".format(background, prefix))
+#             # file.write('# G is vertical gap, V is vertical line, N sets # of columns, D draws horizontal line.\n# H is header, L is label, S is symbol, T is paragraph text, M is map scale.\n')
+#
+#             file.write('# w-4i\n')
+#             file.write('H 20p Helvetica-Bold {} Day {} ({} {} {})\n'.format(time, day, date, month, year))
+#             # file.write('N {}\n'.format(column))
+#             # file.write('V 0 1p\n')
+#
+#             for trans in GMT_DICT.keys():
+#                 trans_parts = ''.join(trans.split('_')[-1])  # 'vechcle passagne ferries' to 'ferries'
+#                 s = 's' if trans_parts[-1] != 's' and trans_parts != 'rail' else ''   #if trans type not ending with 's' and it's not a rail
+#                 trans_txt = trans_parts[0].upper() + trans_parts[1:] + s  #caplitaize first letter
+#
+#                 file.write('G 1l\n')
+#                 file.write('L - Helvetica-Bold L {}\n'.format(trans_txt))
+#
+#                 status = ""
+#                 lenged_to_write = OrderedDict()
+#
+#                 symbol = SYMBOL_DICT[trans]
+#                 if symbol:
+#                     symbol = ',{}'.format(symbol)
+#
+#                 for los in GMT_DICT[trans].keys():
+#                     pen_colour, new_status = GMT_DICT[trans][los]
+#                     if new_status != status:   #local have same status text as SH, so get rid of local in the legends
+#                         status = new_status
+#                         set_text_colour = ''
+#                         end_text_colour = ''
+#                         #print(date_info_dict[prefix][trans])
+#                         #print(prefix)
+#                         if los not in date_info_dict[prefix][trans]:
+#                             set_text_colour = '@;{};'.format(unused_text_colour)
+#                             end_text_colour = '@;;'
+#                     else:
+#                         if set_text_colour != '' and end_text_colour != '':
+#                             if los in date_info_dict[prefix][trans]:
+#                                 set_text_colour = ''
+#                                 end_text_colour = ''
+#
+#                     line_to_wirte = ('S {} {} {} {} {},{}{} {} {}{}{}\n'.format(DX1[trans], shape, SHAPE_SIZE[trans], shape_colour, LEGEND_WIDTH,
+#                                                                             pen_colour, symbol, DX2[trans], set_text_colour,
+#                                                                             status, end_text_colour))
+#                     #print("line to write",line_to_wirte)
+#                     lenged_to_write[pen_colour,new_status] = line_to_wirte
+#
+#                 #print("legend to write",lenged_to_write)
+#                 for legend in lenged_to_write.values():
+#                     #print(legend)
+#                     file.write(legend)
+#
+#             # file.write('EOF\n')
+#             # file.write("psconvert -E500 -A -TG legend_{}.ps\n".format(prefix))
+#             file.close()
+#             startime += 1
+#     print("all finished")
 
 
 def main():
@@ -483,8 +558,9 @@ def main():
     write_gmt_info(gmt_dir, date_info_dict)
 
     clean_up(gmt_dir)
+    fill_time_gaps(gmt_dir)
 
-    write_legend(gmt_dir, date_info_dict)
+    #write_legend(gmt_dir, date_info_dict)
 
 
 if __name__ == '__main__':
